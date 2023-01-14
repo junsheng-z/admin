@@ -1,5 +1,6 @@
 <template>
   <div>Home</div>
+  <t-button>按钮</t-button>
   <!-- <t-button>按钮</t-button> -->
 </template>
 

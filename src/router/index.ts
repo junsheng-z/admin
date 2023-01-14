@@ -1,23 +1,62 @@
 import type { RouteRecordRaw } from "vue-router";
 import { createRouter, createWebHashHistory } from "vue-router";
-
+import { PermissionEnum } from "@/config/permission.config";
 import LoginView from "@/views/Login/index.vue";
-import layoutView from "@/views/common/layout.vue"
+import layoutView from "@/views/common/layout.vue";
+import PageLayoutView from "@/views/common/PageLayout.vue";
 import { useAppStore } from "@/store";
 
-const routes: Array<RouteRecordRaw> = [
+declare module "vue-router" {
+  interface RouteMeta extends Record<string | number | symbol, undefined> {
+    permission: string;
+    icon?: string;
+    title?: string;
+  }
+}
+
+export const MENU_ROUTE_NAME = "menuRoot";
+
+export const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-   name:"root",
-   component: layoutView,
-   redirect: "home",
-   children: [
-    {
-      name: "home",
-      path: "home",
-      component: () => import("@/views/Home/index.vue"),
-    }
-   ]
+    name: MENU_ROUTE_NAME,
+    component: layoutView,
+    redirect: "home",
+    children: [
+      {
+        name: "home",
+        path: "home",
+        component: () => import("@/views/Home/index.vue"),
+        meta: {
+          permission: PermissionEnum.USER,
+          title: "控制台",
+          icon: "dashboard",
+        },
+      },
+      {
+        name: "user",
+        path: "user",
+        component:PageLayoutView,
+        meta: {
+          title: "用户",
+          icon: "usergroup",
+          permission: PermissionEnum.USER,
+        },
+        redirect: { name: "user-list" },
+        children: [
+          {
+            name: "user-list",
+            path: "list",
+            component: () => import("@/views/User/index.vue"),
+            meta: {
+              title: "管理用户",
+              icon: "user",
+              permission: PermissionEnum.USER_LIST,
+            },
+          },
+        ],
+      },
+    ],
   },
   {
     path: "/login",
@@ -46,11 +85,11 @@ router.beforeEach((to, form, next) => {
     whiteList.indexOf(to.path) !== -1
       ? next()
       : next(`/login?redirect=${to.path}`);
-  } 
-  if (appStore.token && to.path === "/login") {
-    next({name: "home"})
   }
-  next()
+  if (appStore.token && to.path === "/login") {
+    next({ name: "home" });
+  }
+  next();
 });
 
 export default router;

@@ -12,7 +12,7 @@
         <t-button theme="default" variant="text">
           <template #icon> <icon name="user"></icon></template
           ><span>
-            {{ userStore.currentUser && userStore.currentUser.data.user.name }}
+            {{ userStore.currentUser && userStore.currentUser.data.user.username }}
           </span>
         </t-button>
       </t-dropdown>
