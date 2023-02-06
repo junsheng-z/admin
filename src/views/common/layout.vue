@@ -4,7 +4,9 @@
       <side-bar></side-bar>
       <t-layout>
         <header-vue></header-vue>
-        <t-content><router-view></router-view></t-content>
+        <t-content class="layout-content"
+          ><router-view></router-view
+        ></t-content>
         <t-footer style="text-align: center"
           >Copyright @ 2022-2023 JS_Admin.</t-footer
         >
@@ -23,5 +25,11 @@ import { ref, reactive } from "vue";
 .layout-mamin {
   // width: 100vw;
   height: 100vh;
+  .layout-content {
+    padding: 24px;
+  }
+}
+.t-layout__footer {
+  padding: 0;
 }
 </style>

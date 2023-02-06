@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { RouteRecordRaw } from "vue-router";
+import type { RouteRecordName, RouteRecordRaw } from "vue-router";
 import { MENU_ROUTE_NAME, routes } from "@/router";
 type PermissionStore = {
   routes: Array<RouteRecordRaw>;
@@ -24,7 +24,23 @@ const fiterRoutes = (
   });
 };
 
-export const usePermissionStorer = defineStore("permission", {
+
+const buildPermissionRoutesNameList = (routes: Array<RouteRecordRaw>) => {
+  const nameList: Array<RouteRecordName> = [];
+
+  routes.forEach((route: RouteRecordRaw) => {
+    if(route.children) {
+      nameList.push(...buildPermissionRoutesNameList(route.children));
+    }
+    if(route.name) {
+      nameList.push(route.name)
+    }
+  });
+  return nameList
+}
+
+
+export const usePermissionStore = defineStore("permission", {
   state(): PermissionStore {
     return {
       routes: [],
@@ -42,5 +58,9 @@ export const usePermissionStorer = defineStore("permission", {
         (route: RouteRecordRaw) => route.name === MENU_ROUTE_NAME
       )?.children;
     },
-  }
+    permissionRouteNameList(): Array<RouteRecordName> {
+      return this.routes ? buildPermissionRoutesNameList(this.routes) : [];
+    }
+  },
+
 });

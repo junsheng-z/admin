@@ -1,30 +1,39 @@
 <template>
-  <t-header class="header-button">
-    <collapse-button v-model:collapse="appStore.menuCollapse"></collapse-button>
-    <div class="right-button">
-      <t-dropdown
-        :options="[
-          { content: '退出登录', value: 1 },
-          { content: '工资+1块', value: 2 },
-        ]"
-        @click="clickHandler"
-      >
-        <t-button theme="default" variant="text">
-          <template #icon> <icon name="user"></icon></template
-          ><span>
-            {{ userStore.currentUser && userStore.currentUser.data.user.username }}
-          </span>
-        </t-button>
-      </t-dropdown>
-    </div>
-  </t-header>
+  <div>
+    <t-header class="header-button">
+      <collapse-button
+        v-model:collapse="appStore.menuCollapse"
+      ></collapse-button>
+
+      <div class="right-button">
+        <!-- <button><div class="right-black">切换暗黑</div></button> -->
+        <t-dropdown
+          :options="[
+            { content: '退出登录', value: 1 },
+            { content: '工资+1块', value: 2 },
+          ]"
+          @click="clickHandler"
+        >
+          <t-button theme="default" variant="text">
+            <template #icon> <icon name="user"></icon></template
+            ><span>
+              {{
+                userStore.currentUser &&
+                userStore.currentUser.data.user.username
+              }}
+            </span>
+          </t-button>
+        </t-dropdown>
+      </div>
+    </t-header>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useAppStore, useUserStore } from "@/store";
 import { Icon, MessagePlugin } from "tdesign-vue-next";
 import type { DropdownOption } from "tdesign-vue-next";
-import CollapseButton from "@/components/CollapseButton.vue"
+import CollapseButton from "@/components/CollapseButton.vue";
 import { useRouter, useRoute } from "vue-router";
 
 const userStore = useUserStore();
@@ -53,5 +62,12 @@ const clickHandler = async ({ value }: DropdownOption) => {
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
+}
+.right-button {
+  display: flex;
+  align-items: center;
+  .right-black {
+    margin-right: 20px;
+  }
 }
 </style>

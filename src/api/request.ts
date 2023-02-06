@@ -13,11 +13,27 @@ const instance: AxiosInstance = axios.create({
 
 const tokenPrefix = "BEarer";
 
+//请求拦截
+instance.interceptors.request.use(
+  (config: any) => {
+    if (config.url !== "/login") {
+      const token: RegExpMatchArray | null | undefined = localStorage
+        .getItem("counter")
+        ?.match(/:"(\S*)",/);
+      //请求头携带token
+      config.headers.Authorization = token && token[1];
+    }
+    return config;
+  },
+  (_error) => {
+    return Promise.reject("请求出错");
+  }
+);
+
 instance.interceptors.request.use((request: any) => {
   const appStore = useAppStore();
   if (appStore.token && request.headers) {
-    request.headers["Authorization"] =
-      tokenPrefix + appStore.token
+    request.headers["Authorization"] = tokenPrefix + appStore.token;
   }
   return request;
 });
@@ -30,7 +46,7 @@ instance.interceptors.response.use(
     const responseData: ErrorResponse | undefined = error.response?.data;
     responseData && (await MessagePlugin.error(responseData?.msg));
 
-    if (error.response?.status === 400) {
+    if (error.response?.status === 400 || error.response?.status === 403) {
       const appStore = useAppStore();
       appStore.logout();
     }

@@ -1,5 +1,5 @@
 <template>
-  <t-aside :width="useStore.menuCollapse ? '64px' : '232px'">
+  <t-aside :width="useStore.menuCollapse ? '54px' : '232px'">
     <t-menu :collapsed="useStore.menuCollapse" :defaultValue="$route.name">
       <sidebar-item
         v-for="(item, index) in permissionStorer.menuRoutes"
@@ -13,9 +13,9 @@
 <script setup lang="ts">
 import sidebarItem from "@/components/sidebaritem.vue";
 import { useAppStore } from "@/store";
-import { usePermissionStorer } from "@/store";
+import { usePermissionStore } from "@/store";
 
 const useStore = useAppStore();
-const permissionStorer = usePermissionStorer();
+const permissionStorer = usePermissionStore();
 </script>
 <style scoped></style>

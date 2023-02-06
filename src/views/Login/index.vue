@@ -24,19 +24,18 @@
             </t-input>
           </t-form-item>
 
-          <!-- 
-
           <t-form-item name="username">
             <t-input
+              type="username"
               v-model="data.username"
               clearable
-              placeholder="请输入账户名"
+              placeholder="请输入账号"
             >
               <template #prefix-icon>
                 <icon name="user" />
               </template>
             </t-input>
-          </t-form-item> -->
+          </t-form-item>
 
           <t-form-item name="password">
             <t-input
@@ -66,11 +65,11 @@ import type { TokenRequest } from "@/api/types";
 import { Icon, MessagePlugin } from "tdesign-vue-next";
 import type { SubmitContext } from "tdesign-vue-next";
 import { ref, reactive } from "vue";
-import { useAppStore, useUserStore } from "@/store";
+import { useAppStore, useUserStore, usecardStore } from "@/store";
 import { useRouter } from "vue-router";
 const data = reactive<TokenRequest>({
   email: "admin@qq.com",
-  // username: "admin3221",
+  username: "admin3221",
   password: "123456",
 });
 
@@ -82,7 +81,7 @@ const rules = {
       message: "请输入正确的邮箱地址",
     },
   ],
-  // username: [{ required: true, message: "账户名不能为空" }],
+  username: [{ required: true, message: "账户名不能为空" }],
   password: [{ required: true, message: "密码不能为空" }],
 };
 
@@ -90,6 +89,7 @@ const appStore = useAppStore();
 const loading = ref<boolean>(false);
 const router = useRouter();
 const userStore = useUserStore();
+const cards = usecardStore();
 const handleLogin = async ({ validateResult }: SubmitContext) => {
   if (validateResult !== true) {
     return;
@@ -100,7 +100,6 @@ const handleLogin = async ({ validateResult }: SubmitContext) => {
     await userStore.fetchCurrentUser();
     await MessagePlugin.success("登录成功");
     await router.push({ name: "home" });
-
   } finally {
     loading.value = false;
   }

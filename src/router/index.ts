@@ -1,10 +1,14 @@
-import type { RouteRecordRaw } from "vue-router";
+import type { RouteRecordName, RouteRecordRaw } from "vue-router";
 import { createRouter, createWebHashHistory } from "vue-router";
 import { PermissionEnum } from "@/config/permission.config";
 import LoginView from "@/views/Login/index.vue";
 import layoutView from "@/views/common/layout.vue";
 import PageLayoutView from "@/views/common/PageLayout.vue";
-import { useAppStore } from "@/store";
+//404
+import NotFoundView from "@/views/Error/not-found.vue";
+//403
+import NotAllowed from "@/views/Error/not-allowed.vue";
+import { useAppStore, usePermissionStore } from "@/store";
 
 declare module "vue-router" {
   interface RouteMeta extends Record<string | number | symbol, undefined> {
@@ -36,7 +40,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         name: "user",
         path: "user",
-        component:PageLayoutView,
+        component: PageLayoutView,
         meta: {
           title: "用户",
           icon: "usergroup",
@@ -54,10 +58,34 @@ export const routes: Array<RouteRecordRaw> = [
               permission: PermissionEnum.USER_LIST,
             },
           },
+          {
+            name: "role-list",
+            path: "roles",
+            component: () => import("@/views/User/roles.vue"),
+            meta: {
+              title: "角色管理",
+              icon: "user",
+              permission: PermissionEnum.ROLE_ROLES,
+            },
+          },
         ],
+      },
+      {
+        name: "Card",
+        path: "card",
+        component: () => import("@/views/CardData/index.vue"),
+        meta: {
+          permission: PermissionEnum.USER,
+          title: "Card管理",
+          icon: "chart",
+        },
       },
     ],
   },
+  // 404
+  { path: "/:pathMatch(.*)*", name: "not-found", component: NotFoundView },
+  //403
+  { path: "/403", name: "not-allowed", component: NotAllowed },
   {
     path: "/login",
     name: "login",
@@ -77,17 +105,34 @@ const router = createRouter({
 });
 
 //白名单
-const whiteList = ["/login"];
+const whiteList: Array<RouteRecordName | undefined | null> = [
+  "login",
+  "not-found",
+  "not-allowed",
+];
 
 router.beforeEach((to, form, next) => {
   const appStore = useAppStore();
   if (!appStore.token) {
-    whiteList.indexOf(to.path) !== -1
+    whiteList.indexOf(to.name) !== -1
       ? next()
       : next(`/login?redirect=${to.path}`);
   }
   if (appStore.token && to.path === "/login") {
     next({ name: "home" });
+  }
+
+  //1. 判断token是否存在, 判断当前访问的域名是否合法
+  //2. 不合法-  403页面
+  if (to.name) {
+    const permissionStore = usePermissionStore();
+    const hasNoPermission = !permissionStore.permissionRouteNameList.includes(
+      to.name
+    );
+    appStore.token &&
+      hasNoPermission &&
+      whiteList.indexOf(to.name) !== -1 &&
+      next({ name: "not-allowed" });
   }
   next();
 });
